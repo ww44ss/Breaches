@@ -108,10 +108,12 @@ AggSeverity <- aggregate(Hacks$DATA.SENSITIVITY, list(YEAR = Hacks$YEAR), sum, n
 
 
 png(filename= "AttackSeverity.png", height=400, width=600)
-
-barplot(AggSeverity$x, names.arg=AggSeverity$YEAR, col="red", xlab = "YEAR", ylab=expression('Aggregate Severity Index'), ylim=c(0, 35))
+par(ps=20)
+par(mar = c(6,6,5,4))
+barplot(AggSeverity$x, names.arg=AggSeverity$YEAR, col="red", xlab = "YEAR", 
+        ylab=expression('Aggregate Severity Index'), ylim=c(0, 35))
 title(main = expression("Attack Severity"))
 text(1,30,"Intel Analysis", cex=.7, col="black", pos=4)
-text(1,28,"Data from: http://www.informationisbeautiful.net/visualizations/worlds-biggest-data-breaches-hacks/", cex=.6, col="black", pos=4)
+text(1,28,"Data from: http://www.informationisbeautiful.net/visualizations/worlds-biggest-data-breaches-hacks/", cex=.4, col="black", pos=4)
 
 dev.off()
