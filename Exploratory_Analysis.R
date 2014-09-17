@@ -77,9 +77,13 @@ IMPACT <- Breaches$DATA.SENSITIVITY*Breaches$NO.OF.RECORDS.STOLEN/10^7
 Breaches<- cbind(Breaches, IMPACT)
 
 AggImpact <- aggregate(Breaches$IMPACT, list(YEAR = Breaches$YEAR), sum, na.rm=TRUE)
-plot(AggImpact, type="o", col=2, lty=1, ylab=expression('Impact'), ylim=c(0, 80))
-title(main = expression("Aggregated Breach Impact"))
-legend("topleft", "Impact", col=2, lty=1,cex=0.8)
+
+colnames(AggImpact)<-c("YEAR", "Impact")
+
+a<-qplot(YEAR, Impact, data=AggImpact, geom=c("point", "smooth"), method="lm", ylim=c(0, NA))
+a<-a+ggtitle(" Impact All Breaches")+theme_bw()+theme(text = element_text(size=18))
+a<-a+geom_point(shape=0, size = 2)
+print(a)
 
 dev.off()
 
@@ -104,6 +108,8 @@ print(a)
 
 ##SEVENTH PLOT
 
+#Stores a plot of severity on the disk
+
 AggSeverity <- aggregate(Hacks$DATA.SENSITIVITY, list(YEAR = Hacks$YEAR), sum, na.rm=TRUE)
 
 
@@ -115,5 +121,29 @@ barplot(AggSeverity$x, names.arg=AggSeverity$YEAR, col="red", xlab = "YEAR",
 title(main = expression("Attack Severity"))
 text(1,30,"Intel Analysis", cex=.7, col="black", pos=4)
 text(1,28,"Data from: http://www.informationisbeautiful.net/visualizations/worlds-biggest-data-breaches-hacks/", cex=.4, col="black", pos=4)
+
+
+dev.off()
+
+##EIGHTH PLOT
+## AVerage Severity of Hacks
+
+AggMeanSeverityHacks <- aggregate(Hacks$DATA.SENSITIVITY, list(YEAR = Hacks$YEAR), mean, na.rm=TRUE)
+
+plot(AggMeanSeverityHacks, type="o", col=2, lty=1, ylim=c(0, 5), ylab=expression('Mean Severity of Hacks'))
+title(main = expression("Mean Severity of Hacks"))
+
+##NINTHPLOT
+## AVerage Severity of Breaches
+
+png(filename= "MeanSeverity.png", height=400, width=600)
+
+par(mar=c(6,5,5,3))
+AggMeanSeverityBreaches <- aggregate(Breaches$DATA.SENSITIVITY, list(YEAR = Breaches$YEAR), mean, na.rm=TRUE)
+
+colnames(AggMeanSeverityBreaches) <-c("YEAR", "Severity")
+a<-qplot(YEAR, Severity, data=AggMeanSeverityBreaches, geom=c("point", "smooth"), method="lm", ylim=c(0, NA))
+a<-a+ggtitle("Mean Severity All Breaches")+theme_bw()+theme(text = element_text(size=20))+par(mar=c(6,5,5,3))
+print(a)
 
 dev.off()
