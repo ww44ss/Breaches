@@ -1,8 +1,10 @@
+
+
 ---
 title: "Breaches Analysis"
 output: 
   html_document:
-  keep_md: true
+    keep_md: true
 ---
 
 ```{r "Housekeeping", echo=FALSE}
@@ -20,9 +22,11 @@ Thankfully they have also made their raw data compilation [available here](https
 
 The specific question I want to address here (quantitatively) is _"How much have the severity and number of hacking-induced data breaches changed over time and is it different than the general trend of breaches."_  
 
+The conclusion is that while Hacks are increasing faster than the overall rate of breaches, the sensitivity of the data lost to hacks is not increasing as fast as that of breaches overall.
+
 ###Cleaned Data  
 
-The data are made available as a google doc. I've been unable (so far) to write a successful R program to download the data directly, so in the interest of time I just downloaded their raw data as a .csv.  
+The data behind the Information is Beautiful chart are made available as a google doc. I've been unable (so far) to write a successful R program to download the data from the website directly, so in the interest of time I just downloaded their raw data as a .csv.  
 
 I made the download copy of the data I use below available on the Github repository linked to this analysis. 
 
@@ -110,7 +114,7 @@ Breaches$datasensitivity<-as.numeric(Breaches$datasensitivity)
 ```
 
 Here is a random subset of the cleaned data. 
-You'll note that one row has blank data for number or recrods stolen. I'm not sure why that is. I plan to look into it later but don't have time right now. Judging from a back-of-the-envelope calculation I don't think it biases the conclusions of this analysis.  
+You'll note that one row has blank data for number of records stolen. I'm not sure why that is. I plan to look into it later but don't have time right now. Judging from a back-of-the-envelope calculation I don't think it biases the conclusions of this analysis.  
 
 
 ```{r "printtable", results="asis", echo=FALSE}
@@ -133,7 +137,7 @@ You'll note that one row has blank data for number or recrods stolen. I'm not su
 
 ###Aggregate Records Lost  
 
-The trend of total records lost shos a general upward trend. The plot below is a full aggregate of all the data. There is substantial year on year variation, dominantly from the fact that large data breaches are (thankfully) still rare from the standpoint that the 1/sqrt(N) is reasonably large. 
+The trend of total records lost from all data breaches shows a general upward trend. The plot below is a full aggregate of all the data. There is substantial year on year variation, dominantly from the fact that large data breaches are (thankfully) still rare from the standpoint that the 1/sqrt(N) is reasonably large. 
 
 ```{r "AggRecordsLost", echo=FALSE}
 
@@ -147,7 +151,7 @@ par(mar=c(6,5,5,3))
 p1<-ggplot(AggBreaches, aes(x=Year, y=Records_Stolen)) +
         geom_point(shape=2, col=2) +
         geom_smooth(method=lm)+
-        ggtitle("Total Records Stolen") +
+        ggtitle("Total Records Lost from All Breaches") +
         theme(text = element_text(size=14))
 
 
@@ -158,7 +162,7 @@ print(p1)
 
 ###Records Stolen by Hacking  
 
-An interesting segmentation is to look at the records stolen by hacking (s opposed to, say, physical theft or an insider). Hacking is usually associated with malicious outside attack of a vulnerability. The industry is taking increased steps to close vulnerabilities, but the investment in hacks, especially by nation-states and organized crime, is also rising. 
+An interesting segmentation is to look at the records stolen by hacking (as opposed to, say, physical theft or an insider). Hacking is usually associated with malicious outside attack of a vulnerability. The industry is taking increased steps to close vulnerabilities, but the investment in hacks, especially by nation-states and organized crime, is also rising. 
 
 
 ```{r "Hacks", echo=FALSE}
@@ -173,32 +177,33 @@ colnames(AggHacks) <-c("Year", "Records_Stolen")
 p2<-ggplot(AggHacks, aes(x=Year, y=Records_Stolen)) +
         geom_point(shape=3, col=1) +
         geom_smooth(method=lm)+
-        ggtitle("Total Records Hacked") +
+        ggtitle("Total Records Lost from Hacking Breaches") +
         theme(text = element_text(size=14))
 
 print(p2)
 
 ```
 
-```{r}
+```{r "slopes", echo=FALSE}
 
-Breachlm <- lm(Data_Sensitivity~Year, data = AggBreaches)
-Hacklm <- lm(Data_Sensitivity~Year, data = AggHacks)
+Breachlm <- lm(Records_Stolen~Year, data = AggBreaches)
+Hacklm <- lm(Records_Stolen~Year, data = AggHacks)
 
 #summary(BreachSenslm)
 
-BreachPerYear<-Breachlm$coefficient[2]
-HackPerYear<-Hacklm$coefficient[2]
+BreachPerYear<-as.integer(Breachlm$coefficient[2]/1000)
+HackPerYear<-as.integer(Hacklm$coefficient[2]/1000)
 
-ratio = as.integer(100.*HackPerYear/BreachPerYear)
+HBratio = signif(100.*(1.-BreachPerYear/HackPerYear),2)
 
 
 ```
 
 
-As can be seen from the data, breaches from hacks also vary significantly from year to year, but have resulted in a generally upward trend of number of records being lost. The trend line apparently rises faster than the trend line for the overall breaches. Indeed hacks per year `r HackPerYear` are about `r ratio`% higher than breaches per year `r BreachPerYear`.   
+As can be seen from the data, breaches from hacks vary significantly from year to year, but also have resulted in a generally upward trend of number of records being lost. The fitted trend line apparently rises faster than the trend line for the overall breaches. Indeed the rate of increase inrecords lost  `r HackPerYear` thousand/year is about `r HBratio` % higher than `r BreachPerYear` thousand/year records lost from all breaches.  
 
-###Average severity of Records Stolen by Hacking versus the overall trend
+###Average severity of Records Stolen by Hacking versus the overall trend  
+
 
 ```{r "Multiplot", echo=FALSE}
 ## I lifted this from http://www.cookbook-r.com/Graphs/Multiple_graphs_on_one_page_(ggplot2)/
@@ -215,43 +220,43 @@ As can be seen from the data, breaches from hacks also vary significantly from y
 # 3 will go all the way across the bottom.
 #
 multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
-  require(grid)
-
-  # Make a list from the ... arguments and plotlist
-  plots <- c(list(...), plotlist)
-
-  numPlots = length(plots)
-
-  # If layout is NULL, then use 'cols' to determine layout
-  if (is.null(layout)) {
-    # Make the panel
-    # ncol: Number of columns of plots
-    # nrow: Number of rows needed, calculated from # of cols
-    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
-                    ncol = cols, nrow = ceiling(numPlots/cols))
-  }
-
- if (numPlots==1) {
-    print(plots[[1]])
-
-  } else {
-    # Set up the page
-    grid.newpage()
-    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
-
-    # Make each plot, in the correct location
-    for (i in 1:numPlots) {
-      # Get the i,j matrix positions of the regions that contain this subplot
-      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
-
-      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
-                                      layout.pos.col = matchidx$col))
-    }
-  }
+        require(grid)
+        
+        # Make a list from the ... arguments and plotlist
+        plots <- c(list(...), plotlist)
+        
+        numPlots = length(plots)
+        
+        # If layout is NULL, then use 'cols' to determine layout
+        if (is.null(layout)) {
+                # Make the panel
+                # ncol: Number of columns of plots
+                # nrow: Number of rows needed, calculated from # of cols
+                layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                                 ncol = cols, nrow = ceiling(numPlots/cols))
+        }
+        
+        if (numPlots==1) {
+                print(plots[[1]])
+                
+        } else {
+                # Set up the page
+                grid.newpage()
+                pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+                
+                # Make each plot, in the correct location
+                for (i in 1:numPlots) {
+                        # Get the i,j matrix positions of the regions that contain this subplot
+                        matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+                        
+                        print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                                        layout.pos.col = matchidx$col))
+                }
+        }
 }
 ```
 
-The number of hacks is increasing, as shown above, but is the severity of the attacks, also increasing?  
+The record loss from hacks is increasing, as shown above, faster than the total of data breaches, but is the severity of the attacks also increasing?  
 
 The data is categorized by severity on a scale of 1-5.   
 1. Just email address/Online information   
@@ -259,6 +264,8 @@ The data is categorized by severity on a scale of 1-5.
 3. Credit card information   
 4. Email password/Health records   
 5. Full bank account details  
+
+The scale is of course arbitrary, but it is sensible and provides a systematic framework for measuring qualitative change. 
 
 The analysis to compute the mean severity of attacks is straigtforward. The results, shown below, show that in fact while the severity of hacks are increasing, they are not increasing as fast as the severity of all attacks. 
 
@@ -277,6 +284,9 @@ p1<-ggplot(AggHackSens, aes(x=Year, y=Data_Sensitivity)) +
         ggtitle("Mean Sensitivity from Hacks") +
         theme(text = element_text(size=14))
 
+```
+
+```{r, "AggBreachSens", echo=FALSE}
 
 
 ##aggregate Breaches data as a mean
@@ -296,18 +306,33 @@ multiplot(p1, p2, cols=2)
 BreachSenslm <- lm(Data_Sensitivity~Year, data = AggBreachSens)
 HackSenslm <- lm(Data_Sensitivity~Year, data = AggHackSens)
 
-#summary(BreachSenslm)
-
-BearchSensPerYear<-BreachSenslm$coefficient[2]
-HackSensPerYear<-HackSenslm$coefficient[2]
 
 ```
 
+```{r "Slope_Stats", echo=FALSE}
+
+#summary(BreachSenslm)
+
+BreachSensPerYear<-BreachSenslm$coefficient[2]/1000.
+HackSensPerYear<-HackSenslm$coefficient[2]/1000.
+
+HBSenRatio <- signif(1.*BreachSensPerYear/HackSensPerYear,2)
+
+```
+
+
 So in response to the orginial question:  
 
-_"How much have the severity and number of hacking-induced data breaches changed over time and is it different than the general trend of breaches."_ 
+_How much have the severity and number of hacking-induced data breaches changed over time and is it different than the general trend of breaches._ 
 
-The number of hacking-induced data breaches has increased     
+While number of hacking-induced data record losses has increased about `r HBratio` % per year faster than the number of records lost from breaches overall, we find the surprising result that the sensitivity of records lost from breaches overall is increasing `r HBSenRatio` times faster than the sensitivity of Hacks. 
 
+This means that while the number of hacked records is growing, the biggest problem from a data sensitivty standpoint is actually from other causes. 
 
+The _number_ of records lost to hacks are increasing faster than the overall rate of record losses from data breaches, the _sensitivity_ of the data stolen by hackers is atually increasing more slowly than that from breaches overall.   
 
+A couple of hypothesis:  
+1. Hacking attacks, such as the large breach at Target or Home Depot, focused on stealing credit card numbers, presumably for financial gain. These activities, while getting larger, will be concentrated around sensitivity level 3. They are not after medical records in general.   
+2. HIPAA now requires disclosure of breaches of medical records in some cases. Medical records on the scale used here, have higher sensitivity. So there may be a systematic bias in which data are reported that is affecting the overall trend.   
+
+... which suggest questions for the next round a programming.

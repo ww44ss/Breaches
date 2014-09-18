@@ -190,13 +190,13 @@ Hacklm <- lm(Data_Sensitivity~Year, data = AggHacks)
 BreachPerYear<-Breachlm$coefficient[2]
 HackPerYear<-Hacklm$coefficient[2]
 
-ratio = as.integer(100.*HackPerYear/BreachPerYear)
+HBratio = as.integer(100.*HackPerYear/BreachPerYear)
 
 
 ```
 
 
-As can be seen from the data, breaches from hacks also vary significantly from year to year, but have resulted in a generally upward trend of number of records being lost. The trend line apparently rises faster than the trend line for the overall breaches. Indeed hacks per year `r HackPerYear` are about `r ratio`% higher than breaches per year `r BreachPerYear`.   
+As can be seen from the data, breaches from hacks also vary significantly from year to year, but have resulted in a generally upward trend of number of records being lost. The trend line apparently rises faster than the trend line for the overall breaches. Indeed hacks per year `r HackPerYear` are about `r HBratio` % higher than breaches per year `r BreachPerYear`.   
 
 ###Average severity of Records Stolen by Hacking versus the overall trend
 
@@ -307,7 +307,6 @@ So in response to the orginial question:
 
 _"How much have the severity and number of hacking-induced data breaches changed over time and is it different than the general trend of breaches."_ 
 
-The number of hacking-induced data breaches has increased     
-
+The number of hacking-induced data breaches has increased... 
 
 

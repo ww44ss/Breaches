@@ -44,7 +44,7 @@ You'll note that one row has blank data for no or recrods stolen. I'm not yet su
 
 
 <!-- html table generated in R 3.1.0 by xtable 1.7-3 package -->
-<!-- Tue Sep 16 18:16:18 2014 -->
+<!-- Tue Sep 16 18:23:40 2014 -->
 <TABLE border=1>
 <TR> <TH>  </TH> <TH> entity </TH> <TH> year </TH> <TH> methodofleak </TH> <TH> noofrecordsstolen </TH> <TH> datasensitivity </TH>  </TR>
   <TR> <TD align="right"> 3 </TD> <TD> Adobe </TD> <TD align="right"> 2014 </TD> <TD> hacked </TD> <TD align="right"> 38000000 </TD> <TD align="right"> 5.00 </TD> </TR>
@@ -99,17 +99,13 @@ The analysis to compute the mean severity of attacks is straigtforward. The resu
 ![plot of chunk Severity](./Breaches_Analysis_files/figure-html/Severity.png) 
 
 ```
-## NULL
+##    Year 
+## 0.08694
 ```
 
 ```
-## 
-## Call:
-## lm(formula = Data_Sensitivity ~ Year, data = AggHackSens)
-## 
-## Coefficients:
-## (Intercept)         Year  
-##    -89.3958       0.0455
+##    Year 
+## 0.04554
 ```
 
 So in response to the orginial question:  
