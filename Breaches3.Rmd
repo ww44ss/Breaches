@@ -71,13 +71,15 @@ You can see the details in the code.
                 ##function applying as.character to a list   
                 tc<-function(x) as.character(x)
 
-        testt<-lapply(testt, tc)
-        ##apply colnames
-        testt<-tolower(testt)
-        testt<-gsub(" ", "", testt)
+        #manage column names
+                testt<-lapply(testt, tc)
+                ##apply colnames
+                testt<-tolower(testt)
+                testt<-gsub(" ", "", testt)
 
-        colnames(Breaches)<-testt
-
+                colnames(Breaches)<-testt
+        
+        ##delete junk rows
         Breaches<-Breaches[c(-1, -2),]
 
         ##get rid of commas in some numerical recorgs
@@ -85,8 +87,6 @@ You can see the details in the code.
         #Breaches$NO.OF.RECORDS.STOLEN <- sub("[,]", "", as.character(Breaches$NO.OF.RECORDS.STOLEN))
 
         #Make the year numeric
-
-        ##then convert
         Breaches$year<-as.integer(as.numeric(as.character(Breaches$year))+2004)      
 
         ##Make Breaches numeric
@@ -95,8 +95,8 @@ You can see the details in the code.
 
 
 ##clean up sensitivity
-## This is a little subjective. The legend ranges from 1 to 5, but the data goes to 5000 and sometimes contains multiple impacts
-## I have just taken the first character of each line. This will tend to underestimate  
+## Note that this is a little subjective. The legend ranges from 1 to 5, but the data goes to 5000 and sometimes contains multiple impacts
+## I have just taken the first character of each line. This will tend to underestimate impact but is reproducible from a first pass effort.
 
 
 ##Turn sensitivity into character
